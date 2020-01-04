@@ -1,0 +1,5 @@
+vendor/
+bazel-bin
+bazel-bzdemo
+bazel-out
+bazel-testlogs

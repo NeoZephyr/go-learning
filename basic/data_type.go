@@ -10,27 +10,6 @@ import (
 	"unicode/utf8"
 )
 
-func main() {
-	constDemo()
-	bitDemo()
-	boolDemo()
-	intDemo()
-	byteDemo()
-	stringDemo()
-	convertDemo()
-	arrayDemo()
-	sliceDemo()
-	mapDemo()
-	objectDemo()
-
-	// 命令行参数
-	fmt.Println(os.Args)
-
-	// 返回值
-	// 不会调用 defer
-	os.Exit(-1)
-}
-
 func constDemo() {
 	fmt.Println("=== constDemo")
 

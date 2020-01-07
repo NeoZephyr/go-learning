@@ -1,3 +1,5 @@
+https://go-zh.org/doc/
+
 bazel query //...
 bazel run --action_env=GOPROXY=https://goproxy.io //:gazelle
 

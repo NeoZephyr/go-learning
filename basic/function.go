@@ -10,24 +10,7 @@ import (
 	"time"
 )
 
-func main() {
-	//fmt.Println(testFuncWithReturn(100))
-	//fmt.Println(testFuncWithVariableParam(1, 2, 3, 4, 5))
-
-	if result, err := testFuncWithMultiReturn(41, 6, "/"); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Printf("result: %d\n", result)
-	}
-
-	//testFunctional()
-	//testAnonymous()
-	//testClosure()
-	testDefer()
-	//testRand()
-}
-
-func testFuncWithVariableParam(nums ...int) int {
+func funcWithVariableParamDemo(nums ...int) int {
 	sum := 0
 
 	for i := range nums {
@@ -35,16 +18,6 @@ func testFuncWithVariableParam(nums ...int) int {
 	}
 
 	return sum
-}
-
-func testFuncWithReturn(num int) string {
-	result := ""
-
-	for ; num > 0; num /= 2 {
-		result = strconv.Itoa(num % 2) + result
-	}
-
-	return result
 }
 
 func testFuncWithMultiReturn(a, b int, opt string) (int, error) {
@@ -61,13 +34,6 @@ func testFuncWithMultiReturn(a, b int, opt string) (int, error) {
 	default:
 		return 0, fmt.Errorf("unsupported operation: %s\n", opt)
 	}
-}
-
-func div(a, b int) (q, r int) {
-	//return a / b, a % b
-	q = a / b
-	r = a % b
-	return
 }
 
 func testFunctional() {

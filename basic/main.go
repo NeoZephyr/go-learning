@@ -11,7 +11,7 @@ func main() {
 	arrayDemo()
 	sliceDemo()
 	mapDemo()
-	objectDemo()
+	treeNodeDemo()
 
 	if result, err := testFuncWithMultiReturn(41, 6, "/"); err != nil {
 		fmt.Println(err)

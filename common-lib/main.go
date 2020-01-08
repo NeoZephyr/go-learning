@@ -6,14 +6,12 @@ import (
 )
 
 func main() {
-	testTime()
-	//testTimer()
-	//testTick()
+	timeDemo()
 }
 
-func testTime() {
+func timeDemo() {
 	t := time.Now()
-	fmt.Println(t)
+	fmt.Println("origin format: %v\n", t)
 	fmt.Println(t.Format("02/1/2006 15:04"))
 	fmt.Println(t.Format("2006-1-02 15:04"))
 	fmt.Println(t.Format("2006/1/02"))
@@ -40,4 +38,12 @@ func testTick()  {
 	fmt.Println("tick 1")
 	<- t.C
 	fmt.Println("tick 2")
+}
+
+func testRand() {
+	rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < 10; i++ {
+		fmt.Printf("rand: %v\n", rand.Intn(100))
+	}
 }

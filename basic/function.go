@@ -135,11 +135,3 @@ func testDefer()  {
 
 	defer fmt.Println("defer3...")
 }
-
-func testRand() {
-	rand.Seed(time.Now().UnixNano())
-
-	for i := 0; i < 10; i++ {
-		fmt.Printf("rand: %v\n", rand.Intn(100))
-	}
-}

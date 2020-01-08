@@ -284,12 +284,10 @@ func (node *TreeNode) traverse() {
 	node.right.traverse()
 }
 
-
 // 通过包装实现扩展
 type NewTreeNode struct {
 	node *TreeNode
 }
-
 
 // 通过别名实现扩展
 type Queue []int
@@ -308,8 +306,20 @@ func (queue *Queue) isEmpty() bool {
 	return len(*queue) == 0
 }
 
-func objectDemo() {
-	fmt.Println("=== objectDemo")
+func (queue *Queue) traverse() {
+	if isEmpty() {
+		return
+	}
+
+	for _, v := range(queue) {
+		fmt.Printf("%v ", v)
+	}
+
+	fmt.Println()
+}
+
+func treeNodeDemo() {
+	fmt.Println("=== treeNodeDemo")
 
 	root := TreeNode{value: 10}
 	root.left = &TreeNode{value: 20}

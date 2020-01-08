@@ -20,7 +20,7 @@ func funcWithVariableParamDemo(nums ...int) int {
 	return sum
 }
 
-func testFuncWithMultiReturn(a, b int, opt string) (int, error) {
+func funcWithMultiReturnDemo(a, b int, opt string) (int, error) {
 	switch opt {
 	case "+":
 		return a + b, nil
@@ -28,9 +28,6 @@ func testFuncWithMultiReturn(a, b int, opt string) (int, error) {
 		return a - b, nil
 	case "*":
 		return a * b, nil
-	case "/":
-		q, _ := div(a, b)
-		return q, nil
 	default:
 		return 0, fmt.Errorf("unsupported operation: %s\n", opt)
 	}

@@ -3,21 +3,29 @@ package main
 import (
 	"fmt"
 	"time"
+	"math/rand"
 )
 
 func main() {
 	timeDemo()
+	timerDemo()
+	tickDemo()
+	randDemo()
 }
 
 func timeDemo() {
+	fmt.Println("=== timeDemo")
+
 	t := time.Now()
-	fmt.Println("origin format: %v\n", t)
-	fmt.Println(t.Format("02/1/2006 15:04"))
-	fmt.Println(t.Format("2006-1-02 15:04"))
-	fmt.Println(t.Format("2006/1/02"))
+	fmt.Printf("origin format: %v\n", t)
+	fmt.Printf("dd/MM/yyyy HH:mm format: %v\n", t.Format("02/1/2006 15:04"))
+	fmt.Printf("yyyy-MM-dd HH:mm format: %v\n", t.Format("2006-1-02 15:04"))
+	fmt.Printf("yyyy/MM/dd format: %v\n", t.Format("2006/1/02"))
 }
 
-func testTimer() {
+func timerDemo() {
+	fmt.Println("=== timerDemo")
+
 	t := time.NewTimer(1 * time.Second)
 
 	fmt.Println("begin:", time.Now())
@@ -32,7 +40,9 @@ func testTimer() {
 	//t.Reset(3 * time.Second)
 }
 
-func testTick()  {
+func tickDemo()  {
+	fmt.Println("=== tickDemo")
+
 	t := time.NewTicker(1 * time.Second)
 	<- t.C
 	fmt.Println("tick 1")
@@ -40,7 +50,9 @@ func testTick()  {
 	fmt.Println("tick 2")
 }
 
-func testRand() {
+func randDemo() {
+	fmt.Println("=== randDemo")
+
 	rand.Seed(time.Now().UnixNano())
 
 	for i := 0; i < 10; i++ {

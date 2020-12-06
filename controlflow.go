@@ -6,30 +6,39 @@ import (
 )
 
 func main() {
-	ifDemo()
-	switchDemo()
-	forDemo()
+	forApp()
+	switchApp()
 }
 
-func ifDemo() {
-	fmt.Println("=== ifDemo")
+func forApp() {
+	fmt.Println("=== for App")
+	fmt.Println()
 
-	lang := "golang"
+	sum := 0
+	for i := 0; i < 10; i++ {
+		sum += i
+	}
 
-	if lang == "python" {
-		fmt.Println("need tabs")
-	} else if lang == "java" {
-		fmt.Println("need spaces")
-	} else {
-		fmt.Println("spaces or tabs")
+	fmt.Printf("sum = %d\n", sum)
+
+	n := 0
+	for {
+		if n >= 3 {
+			break
+		}
+
+		n++
+		time.Sleep(time.Second)
+		fmt.Println("for sleep...")
 	}
 }
 
-func switchDemo() {
-	fmt.Println("=== switchDemo")
+func switchApp() {
+	fmt.Println("=== switch App")
 
 	score := 'E'
 
+	// 没有条件的 switch 同 switch true 一样
 	switch score {
 	case 'A':
 		fmt.Println("90 - 100")
@@ -44,15 +53,3 @@ func switchDemo() {
 	}
 }
 
-func forDemo() {
-	fmt.Println("=== forDemo")
-
-	for i := 0; i < 10; i++ {
-		fmt.Println(i)
-	}
-
-	for {
-		time.Sleep(time.Second)
-		fmt.Println("sleep")
-	}
-}

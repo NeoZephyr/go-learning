@@ -6,6 +6,7 @@ package main
 import "fmt"
 import "unicode/utf8"
 import "strings"
+import "unsafe"
 
 func main() {
 	constApp()
@@ -41,6 +42,8 @@ func bitApp() {
 	fmt.Println()
 	fmt.Println("=== big app")
 
+	// const 同时声明多个常量时，如果省略了值则表示和上面一行的值相同
+	// iota 在 const 关键字出现时将被重置为 0。const 中每新增一行常量声明将使 iota 计数一次
 	const (
 		read = 1 << iota
 		write
@@ -68,6 +71,7 @@ func boolApp() {
 	fmt.Println("=== bool App")
 
 	// 默认 false
+	// 1 byte
 	var b1 bool
 	b2 := true
 	b3 := false
@@ -102,11 +106,11 @@ func intApp() {
 	i3 := int32(200)
 	i4 := int64(300)
 
-	fmt.Printf("i0 = %v, the type of i0 is %T\n", i0, i0)
-	fmt.Printf("i1 = %v, the type of i1 is %T\n", i1, i1)
-	fmt.Printf("i2 = %v, the type of i2 is %T\n", i2, i2)
-	fmt.Printf("i3 = %v, the type of i3 is %T\n", i3, i3)
-	fmt.Printf("i4 = %v, the type of i4 is %T\n", i4, i4)
+	fmt.Printf("i0 = %v, the type of i0 is %T, size: %d\n", i0, i0, unsafe.Sizeof(i0))
+	fmt.Printf("i1 = %v, the type of i1 is %T, size: %d\n", i1, i1, unsafe.Sizeof(i1))
+	fmt.Printf("i2 = %v, the type of i2 is %T, size: %d\n", i2, i2, unsafe.Sizeof(i2))
+	fmt.Printf("i3 = %v, the type of i3 is %T, size: %d\n", i3, i3, unsafe.Sizeof(i3))
+	fmt.Printf("i4 = %v, the type of i4 is %T, size: %d\n", i4, i4, unsafe.Sizeof(i4))
 }
 
 func stringApp() {
@@ -133,7 +137,7 @@ func stringApp() {
 		len(s4),
 		utf8.RuneCountInString(s4))
 
-	// 打印 数值、unicode、字符
+	// 打印数值、unicode、字符
 	fmt.Println("range:")
 	for i, item := range s4 {
 		fmt.Printf("(%d, %X, %c) ", i, item, item)

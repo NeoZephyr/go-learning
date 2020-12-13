@@ -32,5 +32,5 @@ func mapDemo() {
 	fmt.Printf("n: %v, len: %d\n", n, len(n))
 
 	k, success := interface{}(n).(map[string]int)
-	fmt.Printf("n convert to %v , success: %v\n", k, success)
+	fmt.Printf("n convert to map[string]int, value: %v , success: %v\n", k, success)
 }

@@ -6,11 +6,15 @@ import (
 	"sync/atomic"
 )
 
+// G: goroutine
+// P: 可以承载若干个 G，且能够使这些 G 适时地与 M 进行对接
+// M: 系统级线程
+
 func main() {
 	// withoutParamTimeApp()
-	// withoutParamChanApp()
+	withoutParamChanApp()
 	// withParamApp()
-	withParamOrderApp()
+	// withParamOrderApp()
 }
 
 func withoutParamTimeApp() {

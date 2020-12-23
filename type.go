@@ -190,9 +190,10 @@ func optStringApp() {
 }
 
 func typeAliasApp() {
-	fmt.Println("=== type alias App")
 	fmt.Println()
+	fmt.Println("=== type alias App")
 
+	// 别名类型
 	type AString = string
 	str := "a string"
 	aStr := AString(str)
@@ -202,6 +203,9 @@ func typeAliasApp() {
 	aStrs := []AString(strs)
 	fmt.Printf("%T(%q) == %T(%q)\n", strs, strs, aStrs, aStrs)
 
+	// 类型再定义
+	// string 是 BString 的潜在类型。潜在类型相同的不同类型的值之间是可以进行类型转换的，但对于集合类的类型 []BString 与 []string 来说是不合法的，因为它们的潜在类型分别是 []BString 和 []string
+	// 另外，即使两个不同类型的潜在类型相同，它们的值之间也不能进行判等或比较，它们的变量之间也不能赋值
 	type BString string
 	str = "b string"
 	bStr := BString(str)
@@ -209,11 +213,16 @@ func typeAliasApp() {
 }
 
 func typeMatchApp() {
-	fmt.Println("=== type match App")
 	fmt.Println()
+	fmt.Println("=== type match App")
 
 	m := map[string]int{"lakers": 17, "heat": 3}
 
+	// 一对不包裹任何东西的花括号，除了可以代表空的代码块之外，还可以用于表示不包含任何内容的数据结构（或者说数据类型）
+	// interface{}：代表了不包含任何方法定义的、空的接口类型
+	// struct{}：代表了不包含任何字段和方法的、空的结构体类型
+	// []string{}：空的切片值
+	// map[int]string{}：空的字典值
 	switch n := interface{}(m).(type) {
 	case []string:
 		fmt.Printf("match []string, %v\n", n)
@@ -223,5 +232,8 @@ func typeMatchApp() {
 		fmt.Printf("unsupported type, %v\n", n)
 		return
 	}
+
+	n, ok := interface{}(m).(map[string]int)
+	fmt.Printf("match ok: %v, match value: %v\n", ok, n)
 }
 

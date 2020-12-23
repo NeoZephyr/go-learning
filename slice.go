@@ -27,7 +27,6 @@ func sliceApp() {
 
 	fmt.Printf("s1, length: %d, capacity: %d, value: %v\n", len(s1), cap(s1), s1)
 
-
 	s3 := make([]int, 5, 10)
 	fmt.Printf("s3, length: %d, capacity: %d, value: %v\n", len(s3), cap(s3), s3)
 

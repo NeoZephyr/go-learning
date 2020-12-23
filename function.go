@@ -10,7 +10,6 @@ type calcFunc func(x int, y int) (int, error)
 
 func main() {
 	variableParamApp(100, 200, 300)
-
 	result, err := multiReturnApp(100, 5, "*")
 
 	if err != nil {
@@ -21,7 +20,7 @@ func main() {
 
 	deferApp()
 
-	result = functionParamApp(func(a int, b int) int {
+	result, err = functionParamApp(func(a int, b int) int {
 		return a + b
 	}, 100, 6)
 
@@ -37,26 +36,6 @@ func main() {
 	} else {
     	fmt.Printf("add(3, 5) = %v\n", result)
 	}
-}
-
-func deferApp()  {
-	fmt.Println()
-	fmt.Println("=== defer App")
-
-	// 多个 defer 按照先进后出的顺序执行
-	defer fmt.Println("defer1...")
-	defer fmt.Println("defer2...")
-
-	fmt.Println("do something")
-
-	defer func() {
-		fmt.Println("defer3...")
-	}()
-
-	// 即是有 panic，defer 也会执行
-	// panic("error happened")
-
-	defer fmt.Println("defer4...")
 }
 
 func variableParamApp(nums ...int) {
@@ -88,14 +67,41 @@ func multiReturnApp(a, b int, opt string) (int, error) {
 	}
 }
 
-func functionParamApp(fn func(int, int) int, a int, b int) int {
+func deferApp()  {
+	fmt.Println()
+	fmt.Println("=== defer App")
+
+	// 多个 defer 按照先进后出的顺序执行
+	defer fmt.Println("defer1...")
+	defer fmt.Println("defer2...")
+
+	fmt.Println("do something")
+
+	defer func() {
+		fmt.Println("defer3...")
+	}()
+
+	// 即是有 panic，defer 也会执行
+	// panic("error happened")
+
+	defer fmt.Println("defer4...")
+}
+
+func functionParamApp(fn func(int, int) int, a int, b int) (int, error) {
 	fmt.Println()
 	fmt.Println("=== function param App")
 
-	return fn(a, b)
+	if (fn == nil) {
+		return 0, errors.New("fn is nil")
+	} else {
+		return fn(a, b), nil
+	}
 }
 
 func genCalculator(op operate) calcFunc {
+	fmt.Println()
+	fmt.Println("=== function return function App")
+
 	return func(x int, y int) (int, error) {
 		if (op == nil) {
 			return 0, errors.New("invalid operate")

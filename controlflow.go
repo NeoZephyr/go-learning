@@ -11,8 +11,8 @@ func main() {
 }
 
 func forApp() {
-	fmt.Println("=== for App")
 	fmt.Println()
+	fmt.Println("=== for App")
 
 	sum := 0
 	for i := 0; i < 10; i++ {
@@ -31,9 +31,35 @@ func forApp() {
 		time.Sleep(time.Second)
 		fmt.Println("for sleep...")
 	}
+
+	numArr := [...]int{1, 2, 3, 4, 5}
+	numSlice := []int{1, 2, 3, 4, 5}
+	maxIdx := len(numArr) - 1
+
+	// range 表达式只会在 for 语句开始执行时被求值一次
+	// range 表达式的求值结果会被复制，被迭代的对象是 range 表达式结果值的副本
+	for idx, elem := range(numArr) {
+		if (idx == maxIdx) {
+			numArr[0] += elem
+		} else {
+			numArr[idx + 1] += elem
+		}
+	}
+
+	for idx, elem := range(numSlice) {
+		if (idx == maxIdx) {
+			numSlice[0] += elem
+		} else {
+			numSlice[idx + 1] += elem
+		}
+	}
+
+	fmt.Printf("numArr: %v\n", numArr)
+	fmt.Printf("numSlice: %v\n", numSlice)
 }
 
 func switchApp() {
+	fmt.Println()
 	fmt.Println("=== switch App")
 
 	score := 'E'

@@ -21,6 +21,8 @@ func mapDemo() {
 	fmt.Printf("elem: %d, exist: %v\n", elem, ok)
 
 	delete(m, "bulls")
+	elem, ok = m["bulls"]
+	fmt.Printf("elem: %d, exist: %v\n", elem, ok)
 	fmt.Printf("m = %v, len: %d, the type of m is %T\n", m, len(m), m)
 
 	fmt.Println("map range:")

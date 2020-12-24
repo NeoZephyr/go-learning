@@ -22,12 +22,16 @@ func (this *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintln(w, params.Get("name"))
 	fmt.Fprintln(w, "index handler")
+
+	for key := range r.Header {
+		fmt.Fprintf(w, "key: %s, value: %v\n", key, r.Header[key])
+	}
 }
 
 func main() {
 	http.HandleFunc("/", ServeHTTP)
 
-	indexHandler := indexHandler{}
+	indexHandler := IndexHandler{}
 	http.Handle("/index", &indexHandler)
 	http.ListenAndServe(":8080", nil)
 }

@@ -28,6 +28,6 @@ func main() {
 	http.HandleFunc("/", ServeHTTP)
 
 	indexHandler := indexHandler{}
-	http.handle("/hndex", &indexHandler)
+	http.Handle("/index", &indexHandler)
 	http.ListenAndServe(":8080", nil)
 }

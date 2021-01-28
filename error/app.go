@@ -113,8 +113,38 @@ func pkgWrapErrorApp() {
 	fmt.Printf("With message error: \n%+v\n", err2)
 }
 
+func panicApp() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("panic: %+v\n", err)
+		}
+	}()
+	arr := []int{0, 1, 2}
+	i := arr[3]
+	_ = i
+}
+
+func deferApp() {
+	fmt.Println("begin")
+
+	// 多个 defer 按照先进后出的顺序执行
+	defer fmt.Println("first defer")
+
+	for i := 0; i < 3; i++ {
+		defer fmt.Printf("defer in for: %d\n", i)
+	}
+
+	fmt.Println("processing")
+
+	defer fmt.Println("last defer")
+
+	fmt.Println("end")
+}
+
 func main() {
 	// defaultErrorApp()
 	// typeErrorApp()
 	// pkgWrapErrorApp()
+	// panicApp()
+	deferApp()
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -27,8 +29,11 @@ func (c *counter) incr(i uint) uint {
 }
 
 func main() {
-	// countApp()
-	sendAndRecvApp()
+	// mutexCountApp()
+	// sendAndRecvApp()
+	// chanCountApp()
+	// wgCountApp()
+	contextCountApp()
 }
 
 func send(lock *sync.Mutex, sendCond *sync.Cond, recvCond *sync.Cond, mailbox *uint8, id int, index int) {
@@ -113,7 +118,7 @@ func sendAndRecvApp() {
 	<-sign
 }
 
-func countApp() {
+func mutexCountApp() {
 	c := counter{}
 	count(&c)
 }
@@ -157,4 +162,74 @@ func count(c *counter) {
 	<-sign
 	<-sign
 	<-sign
+}
+
+func chanCountApp() {
+	sign := make(chan struct{}, 2)
+	count := int32(0)
+	max := int32(10)
+
+	go incr(&count, 0, max, func() {
+		sign <- struct{}{}
+	})
+
+	go incr(&count, 1, max, func() {
+		sign <- struct{}{}
+	})
+
+	<-sign
+	<-sign
+
+	log.Printf("count: %d\n", count)
+}
+
+func wgCountApp() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	count := int32(0)
+	max := int32(10)
+
+	go incr(&count, 0, max, wg.Done)
+	go incr(&count, 1, max, wg.Done)
+
+	wg.Wait()
+
+	log.Printf("count: %d\n", count)
+}
+
+func contextCountApp() {
+	count := int32(0)
+	max := int32(10)
+
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
+	go incr(&count, 0, max, cancelFunc)
+	go incr(&count, 1, max, cancelFunc)
+
+	<-ctx.Done()
+
+	log.Printf("count: %d\n", count)
+}
+
+func incr(pCount *int32, id int32, max int32, deferFunc func()) {
+	defer func() {
+		deferFunc()
+	}()
+
+	for i := 0; ; i++ {
+		curNum := atomic.LoadInt32(pCount)
+
+		if curNum >= max {
+			break
+		}
+
+		newNum := curNum + 2
+		time.Sleep(time.Millisecond * 200)
+
+		if atomic.CompareAndSwapInt32(pCount, curNum, newNum) {
+			log.Printf("[OK] operator: %d, iterator count: %d, number: %d\n", id, i, newNum)
+		} else {
+			log.Printf("[FAILED] operator: %d, iterator count: %d, number: %d\n", id, i, curNum)
+		}
+	}
 }

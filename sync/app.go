@@ -69,6 +69,51 @@ func (b *delimiterBuffer) Free() {
 	bufPool.Put(b)
 }
 
+type IntToStrMap struct {
+	m sync.Map
+}
+
+func (iMap *IntToStrMap) Delete(key int) {
+	iMap.m.Delete(key)
+}
+
+func (iMap *IntToStrMap) Load(key int) (value string, ok bool) {
+	v, ok := iMap.m.Load(key)
+
+	if v != nil {
+		value = v.(string)
+	}
+
+	return
+}
+
+func (iMap *IntToStrMap) LoadOrStore(key int, value string) (actual string, loaded bool) {
+	v, loaded := iMap.m.LoadOrStore(key, value)
+	actual = v.(string)
+	return
+}
+
+func (iMap *IntToStrMap) Range(f func(key int, value string) bool) {
+	f1 := func(key, value interface{}) bool {
+		return f(key.(int), value.(string))
+	}
+	iMap.m.Range(f1)
+}
+
+func (iMap *IntToStrMap) Store(key int, value string) {
+	iMap.m.Store(key, value)
+}
+
+var pairs = []struct {
+	k int
+	v string
+}{
+	{k: 1, v: "a"},
+	{k: 2, v: "b"},
+	{k: 3, v: "c"},
+	{k: 4, v: "d"},
+}
+
 func getBuffer() Buffer {
 	return bufPool.Get().(Buffer)
 }
@@ -89,6 +134,8 @@ func main() {
 	// contextCountApp()
 
 	// syncPoolApp()
+
+	intToStrMapApp()
 }
 
 func mutexCountApp() {
@@ -212,6 +259,27 @@ func syncPoolApp() {
 
 		fmt.Print(block)
 	}
+}
+
+func intToStrMapApp() {
+	var iMap IntToStrMap
+
+	for _, pair := range pairs {
+		iMap.Store(pair.k, pair.v)
+	}
+
+	iMap.Range(func(key int, value string) bool {
+		fmt.Printf("iMap iteration, k: %d, v: %s\n", key, value)
+		return true
+	})
+
+	iMap.Delete(3)
+	fmt.Println()
+
+	iMap.Range(func(key int, value string) bool {
+		fmt.Printf("iMap iteration, k: %d, v: %s\n", key, value)
+		return true
+	})
 }
 
 func send(lock *sync.Mutex, sendCond *sync.Cond, recvCond *sync.Cond, mailbox *uint8, id int, index int) {

@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"reflect"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -104,6 +106,78 @@ func (iMap *IntToStrMap) Store(key int, value string) {
 	iMap.m.Store(key, value)
 }
 
+type ConcurrentMap struct {
+	m         sync.Map
+	keyType   reflect.Type
+	valueType reflect.Type
+}
+
+func NewConcurrentMap(keyType, valueType reflect.Type) (*ConcurrentMap, error) {
+	if keyType == nil {
+		return nil, errors.New("nil key type")
+	}
+
+	if valueType == nil {
+		return nil, errors.New("nil value type")
+	}
+
+	if !keyType.Comparable() {
+		return nil, fmt.Errorf("incomparable key type: %s", keyType)
+	}
+
+	cMap := &ConcurrentMap{
+		keyType:   keyType,
+		valueType: valueType,
+	}
+
+	return cMap, nil
+}
+
+func (cMap *ConcurrentMap) Delete(key interface{}) {
+	if reflect.TypeOf(key) != cMap.keyType {
+		return
+	}
+
+	cMap.m.Delete(key)
+}
+
+func (cMap *ConcurrentMap) Load(key interface{}) (value interface{}, ok bool) {
+	if reflect.TypeOf(key) != cMap.keyType {
+		return
+	}
+
+	return cMap.m.Load(key)
+}
+
+func (cMap *ConcurrentMap) LoadOrStore(key, value interface{}) (actual interface{}, loaded bool) {
+	if reflect.TypeOf(key) != cMap.keyType {
+		panic(fmt.Errorf("wrong key type: %v", reflect.TypeOf(key)))
+	}
+
+	if reflect.TypeOf(value) != cMap.valueType {
+		panic(fmt.Errorf("wrong value type: %v", reflect.TypeOf(value)))
+	}
+
+	actual, loaded = cMap.m.LoadOrStore(key, value)
+	return
+}
+
+func (cMap *ConcurrentMap) Range(f func(key, value interface{}) bool) {
+	cMap.m.Range(f)
+}
+
+func (cMap *ConcurrentMap) Store(key, value interface{}) {
+	if reflect.TypeOf(key) != cMap.keyType {
+		panic(fmt.Errorf("wrong key type: %v", reflect.TypeOf(key)))
+	}
+
+	if reflect.TypeOf(value) != cMap.valueType {
+		panic(fmt.Errorf("wrong value type: %v", reflect.TypeOf(value)))
+	}
+
+	cMap.m.Store(key, value)
+}
+
 var pairs = []struct {
 	k int
 	v string
@@ -135,7 +209,8 @@ func main() {
 
 	// syncPoolApp()
 
-	intToStrMapApp()
+	// intToStrMapApp()
+	concurrentMapApp()
 }
 
 func mutexCountApp() {
@@ -278,6 +353,32 @@ func intToStrMapApp() {
 
 	iMap.Range(func(key int, value string) bool {
 		fmt.Printf("iMap iteration, k: %d, v: %s\n", key, value)
+		return true
+	})
+}
+
+func concurrentMapApp() {
+	cMap, err := NewConcurrentMap(reflect.TypeOf(pairs[0].k), reflect.TypeOf(pairs[0].v))
+
+	if err != nil {
+		fmt.Printf("fatal error: %s", err)
+		return
+	}
+
+	for _, pair := range pairs {
+		cMap.Store(pair.k, pair.v)
+	}
+
+	cMap.Range(func(key, value interface{}) bool {
+		fmt.Printf("cMap iteration, k: %d, v: %s\n", key, value)
+		return true
+	})
+
+	cMap.Delete(3)
+	fmt.Println()
+
+	cMap.Range(func(key, value interface{}) bool {
+		fmt.Printf("cMap iteration, k: %d, v: %s\n", key, value)
 		return true
 	})
 }

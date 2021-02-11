@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"reflect"
-	"unicode/utf8"
 	"unsafe"
 )
 
@@ -11,7 +10,6 @@ func main() {
 	// bitApp()
 	// byteApp()
 	// intApp()
-	// stringApp()
 	// typeAliasApp()
 	typeMatchApp()
 }
@@ -60,52 +58,6 @@ func intApp() {
 	fmt.Printf("i0 = %v, the type of i0 is %T, size: %d\n", i0, i0, unsafe.Sizeof(i0))
 	fmt.Printf("i1 = %v, the type of i1 is %T, size: %d\n", i1, i1, unsafe.Sizeof(i1))
 	fmt.Printf("i2 = %v, the type of i2 is %T, size: %d\n", i2, i2, unsafe.Sizeof(i2))
-}
-
-func stringApp() {
-	// 默认空字符串
-	var s0 string
-	s1 := "\"Hello Go\""
-	s2 := `"Hello Go"`
-	s3 := `
-	Hello Go
-	`
-	s4 := "go 语言"
-
-	fmt.Printf("s0 = %v\ns1 = %v\ns2 = %v\ns3 = %v\ns4 = %v\n", s0, s1, s2, s3, s4)
-
-	// 获取字节、字符长度
-	fmt.Printf("byte len of s4 is %d, char len of s4 is %d\n",
-		len(s4),
-		utf8.RuneCountInString(s4))
-
-	// 打印数值、unicode、字符
-	fmt.Printf("range: ")
-	for i, item := range s4 {
-		fmt.Printf("(%d, %X, %c) ", i, item, item)
-	}
-	fmt.Println()
-
-	fmt.Printf("byte range: ")
-	for i, item := range []byte(s4) {
-		fmt.Printf("(%d, %X, %c) ", i, item, item)
-	}
-	fmt.Println()
-
-	// int32
-	fmt.Printf("rune range: ")
-	for i, item := range []rune(s4) {
-		fmt.Printf("(%d, %X, %c) ", i, item, item)
-	}
-	fmt.Println()
-
-	s5 := "\xE6\xB1\xBD"
-	fmt.Printf("s5: %v, len of s5: %d, unicode of s5: %X, utf of s5: %X\n",
-		s5, len(s5), []rune(s5)[0], s5)
-
-	s6 := "汽"
-	fmt.Printf("s6: %v, len of s6: %d, unicode of s6: %X, utf of s6: %X\n",
-		s6, len(s6), []rune(s6)[0], s6)
 }
 
 func typeAliasApp() {

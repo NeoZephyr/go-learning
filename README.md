@@ -9,4 +9,5 @@ bazel test --action_env=GOPROXY=https://goproxy.io //basic:go_default_test --tes
 bazel run //:gazelle -- update-repos github.com/segmentio/kafka-g
 bazel run //:gazelle -- update-repos -from_file=go.mod
 
-go run main.go lib1.go lib2.go
+go env -w GO111MODULES=on
+go env -w GOPROXY=https://goproxy.cn,direct

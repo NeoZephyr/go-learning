@@ -1,8 +1,10 @@
 package main
 
 import (
+	"cron/src/handler"
 	"fmt"
 	"github.com/gorhill/cronexpr"
+	"net/http"
 	"time"
 )
 
@@ -11,7 +13,7 @@ type CronJob struct {
 	next time.Time
 }
 
-func main() {
+func startCron() {
 	var (
 		expr *cronexpr.Expression
 		err error
@@ -60,4 +62,14 @@ func main() {
 	}()
 
 	time.Sleep(100 * time.Second)
+}
+
+func main() {
+	http.HandleFunc("/file/upload", handler.UploadHandler)
+	http.HandleFunc("/file/upload/ok", handler.UploadOkHandler)
+	err := http.ListenAndServe(":8080", nil)
+
+	if err != nil {
+		fmt.Printf("Start server failed! error: %s\n", err)
+	}
 }

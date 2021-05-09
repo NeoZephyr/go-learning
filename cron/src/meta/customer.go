@@ -40,6 +40,31 @@ func Get() {
 	fmt.Printf("customer: %s\n", string(data))
 }
 
+func List() {
+	stmt, err := mysql.DBConnection().Prepare("select age, name from customer")
+
+	if err != nil {
+		fmt.Printf("failed to prepare statement, error: %s\n", err.Error())
+		return
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+	if err != nil {
+		fmt.Printf("query failed, error: %s\n", err.Error())
+		return
+	} else if rows == nil {
+		fmt.Printf("not found\n")
+		return
+	}
+
+	pRows := mysql.ParseRows(rows)
+	data := pRows[0]["name"].([]byte)
+	fmt.Printf("customer: %s\n", string(data))
+}
+
 func Store() {
 	stmt, err := mysql.DBConnection().
 		Prepare("insert ignore into customer(`is_member`, `age`, `name`) values (?, ?, ?)")

@@ -2,6 +2,7 @@ package main
 
 import (
 	"cron/src/handler"
+	"cron/src/meta"
 	"fmt"
 	"github.com/gorhill/cronexpr"
 	"net/http"
@@ -65,8 +66,12 @@ func startCron() {
 }
 
 func main() {
+	meta.Get()
+	// meta.Store()
+
 	http.HandleFunc("/file/upload", handler.UploadHandler)
 	http.HandleFunc("/file/upload/ok", handler.UploadOkHandler)
+	http.HandleFunc("/file/meta", handler.GetFileMetaHandler)
 	err := http.ListenAndServe(":8080", nil)
 
 	if err != nil {

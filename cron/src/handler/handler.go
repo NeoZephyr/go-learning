@@ -3,6 +3,7 @@ package handler
 import (
 	"cron/src/meta"
 	"cron/src/util"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -60,4 +61,43 @@ func UploadHandler(w http.ResponseWriter, r *http.Request)  {
 
 func UploadOkHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Upload ok")
+}
+
+func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	hash := r.Form["hash"][0]
+	meta := meta.GetFileMeta(hash)
+	data, err := json.Marshal(meta)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(data)
+}
+
+func DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	hash := r.Form.Get("hash")
+	fileMeta := meta.GetFileMeta(hash)
+
+	file, err := os.Open(fileMeta.Location)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/octect-stream")
+	w.Header().Set("Content-Description", "attachment;filename=\"" + fileMeta.Name + "\"")
+	w.Write(data)
 }

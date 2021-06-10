@@ -1,80 +1,32 @@
 package main
 
 import (
-	"cron/src/handler"
-	"cron/src/meta"
 	"fmt"
-	"github.com/gorhill/cronexpr"
-	"net/http"
+	"net"
+	"sync"
 	"time"
 )
 
-type CronJob struct {
-	expr *cronexpr.Expression
-	next time.Time
-}
-
-func startCron() {
-	var (
-		expr *cronexpr.Expression
-		err error
-	)
-
-	now := time.Now()
-	var scheduleTable = make(map[string]*CronJob)
-
-	if expr, err = cronexpr.Parse("*/5 * * * * * *"); err != nil {
-		fmt.Println(err)
-		return
-	}
-	scheduleTable["job1"] = &CronJob{
-		expr: expr,
-		next: expr.Next(now),
-	}
-
-	if expr, err = cronexpr.Parse("*/1 * * * * * *"); err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	scheduleTable["job2"] = &CronJob{
-		expr: expr,
-		next: expr.Next(now),
-	}
-
-	go func() {
-		for {
-			now = time.Now()
-
-			for jobName, cronJob := range scheduleTable {
-				if now.After(cronJob.next) || now.Equal(cronJob.next) {
-					go func(jobName string) {
-						fmt.Printf("exec job: %v, now: %v, next: %v\n", jobName, now, cronJob.next)
-					}(jobName)
-
-					cronJob.next = cronJob.expr.Next(now)
-				}
-			}
-
-			select {
-			case <- time.NewTimer(100 * time.Millisecond).C:
-			}
-		}
-	}()
-
-	time.Sleep(100 * time.Second)
-}
-
 func main() {
-	meta.Get()
-	// meta.Store()
+	var wg sync.WaitGroup
+	now := time.Now()
 
-	http.HandleFunc("/file/upload", handler.UploadHandler)
-	http.HandleFunc("/file/upload/ok", handler.UploadOkHandler)
-	http.HandleFunc("/file/meta", handler.GetFileMetaHandler)
-	err := http.ListenAndServe(":8080", nil)
+	for i := 20; i < 200; i++ {
+		wg.Add(1)
+		go func(port int) {
+			defer wg.Done()
+			address := fmt.Sprintf("180.101.49.11:%d", port)
+			conn, err := net.Dial("tcp", address)
 
-	if err != nil {
-		fmt.Printf("Start server failed! error: %s\n", err)
+			if err != nil {
+				fmt.Printf("%s connect error: %s\n", address, err.Error())
+				return
+			}
+			defer conn.Close()
+			fmt.Printf("%s connect ok\n", address)
+		}(i)
 	}
+	wg.Wait()
+	duration := time.Since(now) / 1e9
+	fmt.Printf("duration: %d\n", duration)
 }

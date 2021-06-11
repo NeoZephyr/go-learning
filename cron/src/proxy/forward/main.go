@@ -40,16 +40,6 @@ func (proxy *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	response.Body.Close()
 }
 
-//func (p *Pxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-
-//	// step 3, 把下游请求内容返回给上游
-//	rw.WriteHeader(res.StatusCode)
-//	io.Copy(rw, res.Body)
-//	res.Body.Close()
-//}
-//
-
-
 func main() {
 	http.Handle("/", &Proxy{})
 	http.ListenAndServe("0.0.0.0:8080", nil)

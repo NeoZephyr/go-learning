@@ -1,9 +1,9 @@
-package load_balance
+package lb
 
 import "testing"
 
 func TestRoundRobinBalance(t *testing.T) {
-	rb := &RoundRobinBalance{}
+	rb := &RoundRobinBalancer{}
 	rb.Add("127.0.0.1:2002")
 	rb.Add("127.0.0.1:2003")
 	rb.Add("127.0.0.1:2004")

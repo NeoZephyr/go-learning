@@ -1,4 +1,4 @@
-package load_balance
+package lb
 
 import (
 	"errors"
@@ -23,7 +23,7 @@ func (n Nodes) Swap(i, j int) {
 	n[i], n[j] = n[j], n[i]
 }
 
-type ConsistentHashBalance struct {
+type ConsistentHashBalancer struct {
 	mutex      sync.RWMutex
 	hash       Hash
 	replica    int
@@ -31,8 +31,8 @@ type ConsistentHashBalance struct {
 	nodeToAddr map[uint32]string
 }
 
-func NewConsistentHashBalance(replica int, hash Hash) *ConsistentHashBalance {
-	balance := &ConsistentHashBalance{
+func NewConsistentHashBalancer(replica int, hash Hash) *ConsistentHashBalancer {
+	balance := &ConsistentHashBalancer{
 		replica:    replica,
 		hash:       hash,
 		nodeToAddr: make(map[uint32]string),
@@ -44,7 +44,7 @@ func NewConsistentHashBalance(replica int, hash Hash) *ConsistentHashBalance {
 	return balance
 }
 
-func (c *ConsistentHashBalance) Add(params ...string) error {
+func (c *ConsistentHashBalancer) Add(params ...string) error {
 	if len(params) <= 0 {
 		return errors.New("addr is invalid")
 	}
@@ -62,7 +62,7 @@ func (c *ConsistentHashBalance) Add(params ...string) error {
 	return nil
 }
 
-func (c *ConsistentHashBalance) Get(key string) (string, error) {
+func (c *ConsistentHashBalancer) Get(key string) (string, error) {
 	if len(c.nodes) == 0 {
 		return "", errors.New("node is empty")
 	}

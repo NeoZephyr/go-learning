@@ -1,15 +1,15 @@
-package load_balance
+package lb
 
 import (
 	"errors"
 )
 
-type RoundRobinBalance struct {
+type RoundRobinBalancer struct {
 	curIndex int
 	rss []string
 }
 
-func (r *RoundRobinBalance) Add(params ...string) error {
+func (r *RoundRobinBalancer) Add(params ...string) error {
 	if len(params) <= 0 || len(params[0]) <= 0 {
 		return errors.New("addr is empty")
 	}
@@ -17,13 +17,17 @@ func (r *RoundRobinBalance) Add(params ...string) error {
 	return nil
 }
 
-func (r *RoundRobinBalance) Next() string {
+func (r *RoundRobinBalancer) Next() string {
 	if len(r.rss) == 0 {
 		return ""
 	}
 
 	r.curIndex = (r.curIndex + 1) % len(r.rss)
 	return r.rss[r.curIndex]
+}
+
+func (r *RoundRobinBalancer) Get(key string) (string, error) {
+	return r.Next(), nil
 }
 
 

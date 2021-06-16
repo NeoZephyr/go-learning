@@ -1,11 +1,11 @@
-package load_balance
+package lb
 
 import (
 	"errors"
 	"strconv"
 )
 
-type WeightRoundRobinBalance struct {
+type WeightRoundRobinBalancer struct {
 	curIndex int
 	rss []*WeightNode
 }
@@ -21,7 +21,7 @@ type WeightNode struct {
 	effectiveWeight int
 }
 
-func (r *WeightRoundRobinBalance) Add(params ...string) error {
+func (r *WeightRoundRobinBalancer) Add(params ...string) error {
 	if len(params) != 2 {
 		return errors.New("addr is invalid")
 	}
@@ -37,7 +37,12 @@ func (r *WeightRoundRobinBalance) Add(params ...string) error {
 	return nil
 }
 
-func (r *WeightRoundRobinBalance) Next() string {
+func (r *WeightRoundRobinBalancer) Get(key string) (string, error) {
+	return r.Next(), nil
+}
+
+
+func (r *WeightRoundRobinBalancer) Next() string {
 	if len(r.rss) == 0 {
 		return ""
 	}

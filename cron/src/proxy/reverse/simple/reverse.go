@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"cron/src/proxy/lb"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -17,16 +18,36 @@ const (
 )
 
 func main() {
-	url, _ := url.Parse(proxyAddress)
+	rb := lb.GetLoadBalancer(lb.WeightRound)
 
-	proxy := newSingleHostReverseProxy(url)
+	if err := rb.Add("http://127.0.0.1:2003/base", "10"); err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := rb.Add("http://127.0.0.1:2003/base", "10"); err != nil {
+		log.Fatalln(err)
+	}
+
+	proxy := newSingleHostReverseProxy(rb)
 	log.Printf("listen on %s\n", address)
 	log.Fatalln(http.ListenAndServe(address, proxy))
 }
 
-func newSingleHostReverseProxy(target *url.URL) *httputil.ReverseProxy {
-	targetQuery := target.RawQuery
+func newSingleHostReverseProxy(balancer lb.LoadBalancer) *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		addr, err := balancer.Get(req.RemoteAddr)
+
+		if err != nil {
+			log.Fatalln("get server addr failed")
+		}
+
+		target, err := url.Parse(addr)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		targetQuery := target.RawQuery
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
 		req.URL.Path, req.URL.RawPath = joinURLPath(target, req.URL)
@@ -41,7 +62,7 @@ func newSingleHostReverseProxy(target *url.URL) *httputil.ReverseProxy {
 		}
 		req.Header.Set("X-Real-Ip", req.RemoteAddr)
 	}
-	return &httputil.ReverseProxy{Director: director, ModifyResponse: modifyResponse}
+	return &httputil.ReverseProxy{Director: director, ModifyResponse: modifyResponse, ErrorHandler: errorHandler}
 }
 
 func modifyResponse (response *http.Response) error {
@@ -59,6 +80,10 @@ func modifyResponse (response *http.Response) error {
 	response.ContentLength = int64(len(destBytes))
 	response.Header.Set("Content-Length", fmt.Sprint(len(destBytes)))
 	return nil
+}
+
+func errorHandler (w http.ResponseWriter, r *http.Request, err error) {
+	http.Error(w, "error: " + err.Error(), 500)
 }
 
 func joinURLPath(a, b *url.URL) (path, rawpath string) {

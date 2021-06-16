@@ -1,16 +1,16 @@
-package load_balance
+package lb
 
 import (
 	"errors"
 	"math/rand"
 )
 
-type RandomBalance struct {
+type RandomBalancer struct {
 	curIndex int
 	rss []string
 }
 
-func (r *RandomBalance) Add(params ...string) error {
+func (r *RandomBalancer) Add(params ...string) error {
 	if len(params) <= 0 || len(params[0]) <= 0 {
 		return errors.New("addr is empty")
 	}
@@ -18,7 +18,7 @@ func (r *RandomBalance) Add(params ...string) error {
 	return nil
 }
 
-func (r *RandomBalance) Next() string {
+func (r *RandomBalancer) Next() string {
 	if len(r.rss) == 0 {
 		return ""
 	}
@@ -26,3 +26,6 @@ func (r *RandomBalance) Next() string {
 	return r.rss[r.curIndex]
 }
 
+func (r *RandomBalancer) Get(key string) (string, error) {
+	return r.Next(), nil
+}

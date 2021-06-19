@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"compress/gzip"
 	"cron/src/proxy/core/lb"
+	"cron/src/proxy/router"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -17,16 +19,16 @@ import (
 
 var transport = &http.Transport{
 	DialContext: (&net.Dialer{
-		Timeout: 30 * time.Second, // 连接超时
+		Timeout:   30 * time.Second, // 连接超时
 		KeepAlive: 30 * time.Second, // 长连接超时时间
 	}).DialContext,
-	MaxIdleConns: 100,
+	MaxIdleConns:          100,
 	IdleConnTimeout:       90 * time.Second,
 	TLSHandshakeTimeout:   10 * time.Second,
 	ExpectContinueTimeout: 1 * time.Second,
 }
 
-func NewSingleHostReverseProxy(balancer lb.LoadBalancer) *httputil.ReverseProxy {
+func NewSingleHostReverseProxy(balancer lb.LoadBalancer, ctx *router.SeqRouterContext) *httputil.ReverseProxy {
 	director := func(req *http.Request) {
 		addr, err := balancer.Get(req.RemoteAddr)
 
@@ -55,53 +57,51 @@ func NewSingleHostReverseProxy(balancer lb.LoadBalancer) *httputil.ReverseProxy 
 		}
 		req.Header.Set("X-Real-Ip", req.RemoteAddr)
 	}
-	return &httputil.ReverseProxy{Director: director, Transport: transport, ModifyResponse: modifyResponse, ErrorHandler: errorHandler}
-}
 
-func modifyResponse (response *http.Response) error {
-	if strings.Contains(response.Header.Get("Connection"), "Upgrade") {
+	modifyResponse := func(response *http.Response) error {
+		if strings.Contains(response.Header.Get("Connection"), "Upgrade") {
+			return nil
+		}
+
+		var payload []byte
+		var readErr error
+
+		if strings.Contains(response.Header.Get("Content-Encoding"), "gzip") {
+			reader, err := gzip.NewReader(response.Body)
+
+			if err != nil {
+				return err
+			}
+
+			payload, readErr = ioutil.ReadAll(reader)
+			response.Header.Del("Content-Encoding")
+		} else {
+			payload, readErr = ioutil.ReadAll(response.Body)
+		}
+
+		if readErr != nil {
+			return readErr
+		}
+
+		if response.StatusCode != http.StatusOK {
+			payload = []byte("StatusCode error: " + string(payload))
+		}
+
+		ctx.Set("status_code", response.StatusCode)
+		ctx.Set("payload", payload)
+
+		response.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
+		response.ContentLength = int64(len(payload))
+		response.Header.Set("Content-Length", strconv.FormatInt(int64(len(payload)), 10))
 		return nil
 	}
 
-	var payload []byte
-	var readErr error
-
-	if strings.Contains(response.Header.Get("Content-Encoding"), "gzip") {
-		reader, err := gzip.NewReader(response.Body)
-
-		if err != nil {
-			return err
-		}
-
-		payload, readErr = ioutil.ReadAll(reader)
-		response.Header.Del("Content-Encoding")
-	} else {
-		payload, readErr = ioutil.ReadAll(response.Body)
-	}
-
-	if readErr != nil {
-		return readErr
-	}
-
-	if response.StatusCode != http.StatusOK {
-		payload = []byte("StatusCode error: " + string(payload))
-	}
-
-	response.Body = ioutil.NopCloser(bytes.NewBuffer(payload))
-	response.ContentLength = int64(len(payload))
-	response.Header.Set("Content-Length", strconv.FormatInt(int64(len(payload)), 10))
-	return nil
+	fmt.Println("=======create")
+	return &httputil.ReverseProxy{Director: director, Transport: transport, ModifyResponse: modifyResponse, ErrorHandler: errorHandler}
 }
 
-//	modifyFunc := func(resp *http.Response) error {
-//		c.Set("status_code", resp.StatusCode)
-//		c.Set("payload", payload)
-//		return nil
-//	}
-
-
-func errorHandler (w http.ResponseWriter, r *http.Request, err error) {
-	http.Error(w, "error: " + err.Error(), 500)
+func errorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	http.Error(w, "error: "+err.Error(), 500)
 }
 
 func joinURLPath(a, b *url.URL) (path, rawpath string) {

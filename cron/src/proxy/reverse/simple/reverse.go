@@ -3,6 +3,8 @@ package main
 import (
 	"cron/src/proxy/core/lb"
 	"cron/src/proxy/core/proxy"
+	"cron/src/proxy/router"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -23,7 +25,16 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	proxyHandler := proxy.NewSingleHostReverseProxy(rb)
+	seqRouter := router.NewSeqRouter()
+	seqRouter.Group("/hello", func(routerContext *router.SeqRouterContext) {
+		routerContext.Rw.Write([]byte("hello world"))
+	})
+	seqRouter.Group("/", func(routerContext *router.SeqRouterContext) {
+		fmt.Println("proxy....")
+		reverseProxy := proxy.NewSingleHostReverseProxy(rb, routerContext)
+		reverseProxy.ServeHTTP(routerContext.Rw, routerContext.Req)
+	})
+
 	log.Printf("listen on %s\n", address)
-	log.Fatalln(http.ListenAndServe(address, proxyHandler))
+	log.Fatalln(http.ListenAndServe(address, seqRouter))
 }

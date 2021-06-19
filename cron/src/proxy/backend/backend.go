@@ -57,6 +57,9 @@ func (server *BackendServer) debugHandler(w http.ResponseWriter, r *http.Request
 	io.WriteString(w, pathInfo)
 	io.WriteString(w, ipInfo)
 	io.WriteString(w, headerInfo)
+
+	fmt.Fprintln(w, r.Header["Accept-Encoding"])
+	fmt.Fprintln(w, r.Header.Get("Accept-Encoding"))
 }
 
 func (server *BackendServer) pingHandler(w http.ResponseWriter, r *http.Request) {

@@ -4,3 +4,5 @@ bazel-bzdemo
 bazel-out
 bazel-testlogs
 bazel-go-learning
+
+.idea
